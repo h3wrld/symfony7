@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    networks:
+      - symfony_network
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./docker/postgresql/Dockerfile
+      args:
+        - POSTGRES_DB=${POSTGRES_DB}
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
+        - POSTGRES_PORT=${POSTGRES_PORT}
+    volumes:
+      - ./docker/postgresql/data:/var/lib/postgresql/data:rw
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      - symfony_network
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - 80:80
+    depends_on:
+      - php
+    networks:
+      - symfony_network
+
+networks:
+  symfony_network:
+    driver: bridge
