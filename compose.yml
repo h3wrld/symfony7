@@ -7,17 +7,15 @@ services:
       dockerfile: ./docker/php/Dockerfile
     networks:
       - symfony_network
+    volumes:
+      - .:/var/www/html/symfony7
 
   postgres:
-    build:
-      context: .
-      dockerfile: ./docker/postgresql/Dockerfile
-      args:
-        - POSTGRES_DB=${POSTGRES_DB}
-        - POSTGRES_USER=${POSTGRES_USER}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        - POSTGRES_VERSION=${POSTGRES_VERSION}
-        - POSTGRES_PORT=${POSTGRES_PORT}
+    image: postgres:${POSTGRES_VERSION}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./docker/postgresql/data:/var/lib/postgresql/data:rw
     ports:
@@ -26,16 +24,15 @@ services:
       - symfony_network
 
   nginx:
-    build:
-      context: .
-      dockerfile: ./docker/nginx/Dockerfile
+    image: nginx:1.25.3-alpine
     ports:
       - 80:80
-    depends_on:
-      - php
+    volumes:
+      - ./docker/nginx/conf:/etc/nginx/conf.d
+      - .:/var/www/html/symfony7
     networks:
       - symfony_network
-
+      
 networks:
   symfony_network:
     driver: bridge

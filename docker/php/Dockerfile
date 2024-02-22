@@ -7,7 +7,7 @@ RUN apk --no-cache add \
     git \
     unzip
 
-WORKDIR /app
+WORKDIR /var/www/html/symfony7
 
 COPY . .
 
@@ -19,8 +19,6 @@ FROM php:8.2-fpm-alpine
 
 RUN apk --no-cache add \
     libpq
-
-COPY --from=builder /app /var/www/html/symfony7
 
 RUN set -x \
     && apk add --no-cache --virtual .build-deps \
