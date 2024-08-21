@@ -11,10 +11,6 @@ WORKDIR /var/www/html/symfony7
 
 COPY . .
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-RUN composer install --no-interaction --optimize-autoloader
-
 FROM php:8.2-fpm-alpine
 
 RUN apk --no-cache add \
@@ -27,8 +23,10 @@ RUN set -x \
     && docker-php-ext-install pdo_pgsql \
     && apk del .build-deps
 
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 WORKDIR /var/www/html/symfony7
 
 EXPOSE 9000
 
-CMD ["php-fpm"]
+CMD composer install --no-interaction --optimize-autoloader && php-fpm
